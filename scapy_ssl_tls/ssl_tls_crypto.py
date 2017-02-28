@@ -3,7 +3,7 @@
 # Author : <github.com/tintinweb/scapy-ssl_tls>
 
 from __future__ import division
-import binascii
+import py3compat
 import copy
 import os
 import struct
@@ -1723,7 +1723,7 @@ class TLSSecurityParameters(object):
             s.append("%20s | %s" % (f, repr(getattr(self, f))))
         s.append("%20s| %s" % ("premaster_secret", repr(self.pms)))
         s.append("%20s| %s" % ("master_secret", repr(self.master_secret)))
-        s.append("%20s| %s" % ("master_secret [bytes]", binascii.hexlify(self.master_secret)))
+        s.append("%20s| %s" % ("master_secret [bytes]", py3compat.hexlify(self.master_secret)))
         return "\n".join(s)
 
 

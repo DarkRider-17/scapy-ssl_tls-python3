@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 # Author : <github.com/tintinweb/scapy-ssl_tls>
 
+import py3compat
 from scapy.packet import bind_layers, Packet, Raw
 from scapy.fields import *
 from scapy.layers.inet import TCP, UDP
@@ -52,7 +53,7 @@ class BLenField(LenField):
         """Extract an internal value from a string"""
         upack_data = s[:self.sz]
         # prepend struct.calcsize()-len(data) bytes to satisfy struct.unpack
-        upack_data = '\x00' * (struct.calcsize(self.fmt) - self.sz) + upack_data
+        upack_data = py3compat.b('\x00') * (struct.calcsize(self.fmt) - self.sz) + upack_data
         return s[self.sz:], self.m2i(pkt, struct.unpack(self.fmt, upack_data)[0])
 
     def i2m(self, pkt, x):
@@ -235,7 +236,7 @@ class TypedPacketListField(PacketListField):
 class EnumStruct(object):
 
     def __init__(self, entries):
-        entries = dict((v.replace(' ', '_').upper(), k) for k, v in entries.iteritems())
+        entries = dict((v.replace(' ', '_').upper(), k) for k, v in entries.items())
         self.__dict__.update(entries)
 
 TLS_VERSIONS = {
@@ -970,7 +971,7 @@ class TLSDecryptablePacket(PacketLengthFieldPayload):
             # CBC mode
             if self.tls_ctx.sec_params.cipher_mode_name == tlsc.CipherMode.CBC:
                 try:
-                    self.padding_len = ord(raw_bytes[-1])
+                    self.padding_len = py3compat.byte_ord(raw_bytes[-1])
                     self.padding = raw_bytes[-self.padding_len - 1:-1]
                     self.mac = raw_bytes[-self.padding_len - hash_size - 1:-self.padding_len - 1]
                     if self.tls_ctx.requires_iv:
@@ -1324,7 +1325,7 @@ class SSL(Packet):
         # figure out if we're UDP or TCP
         if self.underlayer is not None and self.underlayer.haslayer(UDP):
             self.guessed_next_layer = DTLSRecord
-        elif ord(raw_bytes[0]) & 0x80:
+        elif py3compat.byte_ord(raw_bytes[0]) & 0x80:
             self.guessed_next_layer = SSLv2Record
         else:
             self.guessed_next_layer = TLSRecord
@@ -1430,7 +1431,7 @@ def to_raw(pkt, tls_ctx, include_record=True, compress_hook=None, pre_encrypt_ho
     comp_method = ctx.compression
 
     content_type, data = None, None
-    for tls_proto, handler in cleartext_handler.iteritems():
+    for tls_proto, handler in cleartext_handler.items():
         if pkt.haslayer(tls_proto):
             content_type, data = handler(pkt[tls_proto], tls_ctx)
             break

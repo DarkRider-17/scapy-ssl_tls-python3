@@ -26,7 +26,7 @@ if sys.version_info[0] * 10 + sys.version_info[1] < 27:
 
 def post_process(title, d):
     norm_d = {}
-    for k, v in d.iteritems():
+    for k, v in d.items():
         if title == "APPLICATION_LAYER_PROTOCOL_NEGOTIATION_PROTOCOL_IDS":
             _ = k
             k = "'%s'" % ''.join(re.findall(r'\("([^"]+)"\)', v))

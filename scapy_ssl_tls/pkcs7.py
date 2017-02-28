@@ -2,8 +2,7 @@
 # -*- coding: UTF-8 -*-
 # Author : janglin <http://japrogbits.blogspot.co.at>
 # http://japrogbits.blogspot.co.at/2011/02/using-encrypted-data-between-python-and.html
-import binascii
-import StringIO
+import py3compat
 
 
 class PKCS7Encoder(object):
@@ -43,7 +42,7 @@ class PKCS7Encoder(object):
         Remove the PKCS#7 padding from a text string
         """
         nl = len(text)
-        val = int(binascii.hexlify(text[-1]), 16)
+        val = int(py3compat.hexlify(text[-1]), 16)
         if val > self.k:
             raise ValueError('Input is not padded or padding is corrupt')
 
@@ -59,8 +58,8 @@ class PKCS7Encoder(object):
 
     def get_padding(self, text):
         l = len(text)
-        output = StringIO.StringIO()
+        output = py3compat.StringIO()
         val = self.k - (l % self.k)
         for _ in xrange(val):
             output.write('%02x' % val)
-        return binascii.unhexlify(output.getvalue())
+        return py3compat.unhexlify(output.getvalue())
